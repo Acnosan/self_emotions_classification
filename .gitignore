@@ -2,4 +2,6 @@ faces_data/
 .ipynb_checkpoints/
 gpu_test.ipynb
 converter.ipynb
-ds_cache/
+output_vis/
+models/
+test/
