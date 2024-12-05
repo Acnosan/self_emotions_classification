@@ -2,6 +2,7 @@ faces_data/
 .ipynb_checkpoints/
 gpu_test.ipynb
 converter.ipynb
-output_vis/
+output_display/
 models/
 test/
+docs/image_classification.tex
