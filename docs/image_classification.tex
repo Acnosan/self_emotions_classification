@@ -1,0 +1,239 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage[left=0.5cm,right=0.5cm,top=0.5cm,bottom=1cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fullpage} % Equal margins on all sides
+\definecolor{myPurple}{RGB}{128, 0, 128}
+\definecolor{codeblue}{rgb}{0.25,0.5,0.75}
+\definecolor{green}{rgb}{0.18, 0.6, 0.33}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue},
+    commentstyle=\color{myPurple},
+    stringstyle=\color{green},
+    showstringspaces=false,
+    frame=single,
+    breaklines=true,
+}
+\usepackage{booktabs} % include tables
+\usepackage{float} % float position figures
+\begin{document}
+
+\title{\Huge Image Classification Using TensorFlow}
+\author{\LARGE Mezenner Abdelhak}
+\date{\Large 05/12/2024}
+\maketitle
+\newpage
+\section{Data Pre-Processing}
+\section{Model Structure}
+\begin{lstlisting}
+regularization_value = 0.0001    
+model = Sequential([
+	Conv2D(16,(3,3),
+		strides=1,
+		#kernel_initializer='he_normal',
+		activation='relu',
+		kernel_regularizer=l2(regularization_value),
+		input_shape = input_shape
+		),
+	MaxPooling2D(),
+	Conv2D(32,(3,3),
+		strides=1,
+		#kernel_initializer='he_normal',
+		activation='relu',
+		kernel_regularizer=l2(regularization_value)
+		),
+	MaxPooling2D(),
+	Conv2D(16,(3,3),
+		strides=1,
+		#kernel_initializer='he_normal',
+		activation='relu',
+		kernel_regularizer=l2(regularization_value)
+		),
+	MaxPooling2D(),
+	Flatten(),			
+	Dense(64,
+		#kernel_initializer='he_normal',
+		activation='relu',
+		kernel_regularizer=l2(regularization_value)
+		),
+	Dropout(0.4),
+	Dense(32,
+		#kernel_initializer='he_normal',
+		activation='relu',
+		kernel_regularizer=l2(regularization_value)
+		),	
+	Dropout(0.2),
+	Dense(5,
+		activation='softmax',
+		#kernel_initializer='glorot_uniform'
+		)
+])
+\end{lstlisting}
+
+\begin{enumerate}
+\item Sequential: its the structure where we stack our tensors layers. we could use \textbf{.summary()} method to display the sequential content.
+\item Conv2D: convolutional layer that uses convolutional kernet which is a filter matrix that extract the features from an image, resulting in a new tensor of outputs or called also feature map that goes down to the next layer as input.
+\item MaxPooling2D: a pooling operation that selects the maximum element from the region of the feature map covered by the filter. the output after max-pooling layer would be a feature map containing the most prominent features of the previous feature map.
+\item Flatten: When applied to a multi-dimensional tensor output from a convolutional or pooling layer, the flatten layer simply collapses all dimensions except the batch dimension, resulting in a one dimensional array. For example, if the output tensor has dimensions (batch\_size, height, width, channels), the flatten layer would reshape it to (batch\_size, height * width * channels).
+\item Dense : The regular neural network layer that contains multiple neurons, each \textbf{N+1} Neuron receives input from all the \textbf{N} Neurons.
+\item Droupout: Its a layer that helps to prevent overfitting by randomly nullifying outputs, meaning it sets random outputs from random neurons to 0 during the training process, controlled by the \textbf{rate} parameter which is a fraction of the input units to drop.
+\end{enumerate}
+
+\section{Hyper-Parameters Optimization}
+Here we want to search for the best hyperparameters that our model uses to fit the training data which helps to maximize the accuracy and minimize the loss.\\
+\textbf{hyper-Parameters} list here is :
+\begin{lstlisting}[language=Python]
+batch_sizes = [16,32]
+learning_rates =[0.1,0.01,0.05,0.001]
+Epochs = 100
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1} % Adjust the row height by a factor of 1.5
+\begin{tabular}{|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+	\hline
+	\textbf{Batch Size}&\textbf{Learning Rate}&\textbf{Val Acc}&\textbf{Val Loss}\\
+	\hline
+16 & 0.1 & 0.2888 & 1.6090\\
+	\hline
+16 & 0.01 & 0.1530 &1.6114\\
+	\hline
+16 & 0.05 & 0.1207 & 1.6108\\
+	\hline
+\textbf{16} & \textbf{0.001} & \textbf{0.9138} & \textbf{0.3091}\\
+	\hline
+32 & 0.1 & 0.1961 & 1.6156\\
+	\hline
+32 & 0.01 & 0.1509 & 1.6115\\
+	\hline
+32 & 0.05 & 0.1832 & 1.6113\\
+	\hline
+\textbf{32} & \textbf{0.001} & \textbf{0.9159} & \textbf{0.2578}\\
+	\hline
+\end{tabular}
+\caption{Table of First Print Results}
+\label{tab:first_print_results}
+\end{table}
+
+\textbf{Conclusion:}
+we conclude that we should use learning rates around 0.001 to tune our model, so we will fit our model again but with different \textbf{hyper-parametes} this time.
+
+\textbf{Second Print Results:}
+\begin{lstlisting}[language=Python]
+learning_rates =[0.005,0.001,0.0005,0.0001]
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1} % Adjust the row height by a factor of 1.5
+\begin{tabular}{|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+	\hline
+	\textbf{Batch Size}&\textbf{Learning Rate}&\textbf{Val Acc}&\textbf{Val Loss}\\
+	\hline
+16 & 0.005 & 0.1767 & 1.6099\\
+	\hline
+16 & 0.001 & 0.9224 & 0.2586\\
+	\hline
+\textbf{16} & \textbf{0.0005} & \textbf{0.9159} & \textbf{0.2519}\\
+	\hline
+16 & 0.0001 & 0.8750 & 0.3982\\
+	\hline
+32 & 0.005 & 0.1767 & 1.6106\\
+	\hline
+32 & 0.001 & 0.9181 & 0.2756\\
+	\hline
+\textbf{32} & \textbf{0.0005} & \textbf{0.9159} & \textbf{0.2497}\\
+	\hline
+32 & 0.0001 & 0.8427 & 0.4740\\
+	\hline
+\end{tabular}
+\caption{Table of Second Print Results}
+\label{tab:second_print_results}
+\end{table}
+
+\textbf{Conclusion:}
+we conclude from this results that we should use learning rates between 0.0005 < lr < 0.001
+
+\subsection{Fetching The Best Hyper-Parameters}
+\begin{lstlisting}[language=Python]
+best_result = min(results1, key=lambda x: x['val_loss'])
+
+best_result_hist = best_result['history']
+
+print("\nBest parameters:")
+print(f"Batch Size: {best_result['batch_size']}")
+print(f"Learning Rate: {best_result['learning_rate']:.4f}")
+print(f"Validation Accuracy: {best_result['val_accuracy']:.4f}")
+print(f"Validation Loss: {best_result['val_loss']:.4f}")
+print(f"Accuracy: {best_result_hist['accuracy'][-1]:.4f}")
+print(f"Loss: {best_result_hist['loss'][-1]:.4f}")
+\end{lstlisting}
+\textbf{First Print Results:}
+From the first run :
+Best parameters:
+Batch Size: 32
+Learning Rate: 0.0010
+Validation Accuracy: 0.9159
+Validation Loss: 0.2578
+Accuracy: 0.8912
+Loss: 0.3102
+\textbf{Second Print Results:}
+The second run after changing the Learning rates list :
+Best parameters:
+Batch Size: 32
+Learning Rate: 0.0005
+Validation Accuracy: 0.9159
+Validation Loss: 0.2497
+Accuracy: 0.9009
+Loss: 0.2634
+
+\subsection{Hyper-Parameters Tuning Final Results}
+
+The final run after changing the learning rates to be between 0.0005 < lr < 0.0010 and fixing the batch size to be 32.
+Best parameters:
+Batch Size: 32
+Learning Rate: 0.0005
+Validation Accuracy: 0.9397
+Validation Loss: 0.1974
+Accuracy: 0.8877
+Loss: 0.2755
+
+\section{Model Fitting With Best Hyper-Parameters}
+After we had the best \textbf{hyper-parameters} (learning rate:~0.0005, batch size:~32), we fitted a new model instance that we call \texttt{final\_model1} to our dataset divided into batches of 32.
+
+\subsection{Evaluation on Test Set}
+
+\begin{lstlisting}[language=Python]
+final_test_batches = prepare_dataset(test_dataset, best_result['batch_size'],is_training=False)
+
+test_loss, test_accuracy = final_model1.evaluate(final_test_batches)
+print(f"\nFinal Test Accuracy: {test_accuracy:.4f},Final Test Loss: {test_loss:.4f}")
+\end{lstlisting}
+\textbf{Print Results:}
+Final Test Accuracy: 0.9246,Final Test Loss: 0.2040
+
+\section{Model Saving}
+Now finally we could save our model so its usable in the future for further optimization Or predictions.
+\begin{lstlisting}[language=Python]
+keras_model_name = day_save_model_number+'_'+saved_date+'_'+test_accuracy+'.keras'
+final_model1.save(os.path.join('models',keras_model_name))
+\end{lstlisting}
+The naming convention used here is:
+\begin{enumerate}
+
+\item \texttt{model\_number} is the number of our model, in this case its 1 cause we generated only one final model.
+\item \texttt{saved\_date} its the date of the saving, in this case its 2024\_12\_05.
+\item \texttt{test\_accuracy} its our final test accuracy, in this case its 0.924
+
+\end{enumerate}
+
+\end{document}
