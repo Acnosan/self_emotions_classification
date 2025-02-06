@@ -1,7 +1,13 @@
-faces_data/
-.ipynb_checkpoints/
+
+## Files
 gpu_test.ipynb
 converter.ipynb
-output_display/
+
+## Folders
+.ipynb_checkpoints/
+faces_data/
 models/
+output_display/
 test/
+
+## ipynb files
