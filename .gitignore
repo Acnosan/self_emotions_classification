@@ -1,13 +1,11 @@
-
-## Files
-gpu_test.ipynb
-converter.ipynb
-
 ## Folders
 .ipynb_checkpoints/
 faces_data/
 models/
 output_display/
 test/
+mlflow_details/
 
 ## ipynb files
+gpu_test.ipynb
+converter.ipynb
